@@ -4,11 +4,36 @@
 *.lst
 *.hex
 *.o
+*.rpt
+*.summary
+*.bak
+*.mif
+*.tdf
+*.cdb
+*.hdb
+*.smsg
+*.jdi
+*.done
+*.pin
+*.qpf
+*.jic
+*.pof
+*.sof
+*.qws
+*.qsf
+PLLJ_PLLSPE_INFO.txt
+cbx_args.txt
 
 omdazz/db/*.*
 omdazz/html/*.*
 omdazz/incremental_db
 omdazz/simulation
+omdazz/*.rpt
+omdazz/*.summary
+omdazz/*.done
+omdazz/*.smsg
+omdazz/*.pin
+omdazz/*.jdi
 
 omdazz-swt/db/*.*
 omdazz-swt/html/*.*
@@ -19,5 +44,26 @@ omdazz-vga/db/*.*
 omdazz-vga/html/*.*
 omdazz-vga/incremental_db
 omdazz-vga/simulation
+
+max7219/db/*.*
+max7219/html/*.*
+max7219/incremental_db
+max7219/simulation
+
+a-estf/db/*.*
+a-estf/html/*.*
+a-estf/incremental_db
+a-estf/simulation
+
+a-estf-vga/db/*.*
+a-estf-vga/html/*.*
+a-estf-vga/incremental_db
+a-estf-vga/simulation
+
+a_estf-swt/
+a_estf-swt/*.*
+a_estf-swt/html/*.*
+a_estf-swt/incremental_db
+a_estf-swt/simulation
 
 
