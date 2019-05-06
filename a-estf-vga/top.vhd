@@ -42,15 +42,23 @@ entity top is
       ps2k_c : in std_logic;
       ps2k_d : in std_logic;
 
-      tx1 : out std_logic;
       rx1 : in std_logic;
-      rts1 : out std_logic;
+      tx1 : out std_logic;
       cts1 : in std_logic;
+      rts1 : out std_logic;
+
+
 
       sdcard_cs : out std_logic;
       sdcard_mosi : out std_logic;
       sdcard_sclk : out std_logic;
       sdcard_miso : in std_logic;
+
+-- when these are defined here then pins must exist
+-- alternative definitions below if output not needed
+      panel_xled : out std_logic_vector(5 downto 0);
+      panel_col : inout std_logic_vector(11 downto 0);
+      panel_row : out std_logic_vector(2 downto 0);
 
 -- ethernet, enc424j600 controller interface
       xu_cs : out std_logic;
@@ -113,7 +121,7 @@ component unibus is
       rl_sdcard_debug : out std_logic_vector(3 downto 0);            -- debug/blinkenlights
 
 -- rk controller
-      have_rk : in integer range 0 to 1 := 1;                        -- enable conditional compilation
+      have_rk : in integer range 0 to 1 := 0;                        -- enable conditional compilation
       have_rk_debug : in integer range 0 to 2 := 1;                  -- enable debug core; 0=none; 1=all; 2=debug blinkenlights only
       have_rk_num : in integer range 1 to 8 := 8;                    -- active number of drives on the controller; set to < 8 to save core
       have_rk_minimal : in integer range 0 to 1 := 0;                -- 1 for smaller core, but not very compatible controller. Useful to fit s3b200 only
@@ -133,7 +141,7 @@ component unibus is
       rh_sdcard_debug : out std_logic_vector(3 downto 0);            -- debug/blinkenlights
 
 -- xu enc424j600 controller interface
-      have_xu : in integer range 0 to 1 := 0;                        -- enable conditional compilation
+      have_xu : in integer range 0 to 1 := 1;                        -- enable conditional compilation
       have_xu_debug : in integer range 0 to 1 := 1;                  -- enable debug core
       xu_cs : out std_logic;
       xu_mosi : out std_logic;
@@ -365,9 +373,10 @@ end component;
 
 
 ------------------------------------------------------------------------------------------------
-signal      panel_xled :  std_logic_vector(5 downto 0);
-signal      panel_col :  std_logic_vector(11 downto 0);
-signal      panel_row :  std_logic_vector(2 downto 0);
+--enable here if not using external pins
+--signal      panel_xled :  std_logic_vector(5 downto 0);
+--signal      panel_col :  std_logic_vector(11 downto 0);
+--signal      panel_row :  std_logic_vector(2 downto 0);
 
 signal c0 : std_logic;
 
@@ -483,7 +492,6 @@ signal LED_activating_counter: std_logic_vector(2 downto 0);
 --signal  my_digits : std_logic_vector ( 39 downto 0) := "1111111111001100010100100000110001000001";
 --signal  my_digits : std_logic_vector ( 39 downto 0) := "0100000111001100010100100000110001000001";
 -----------------------------------------------------------35---30---25---20---15---10----5----0
---signal  my_digits : std_logic_vector ( 39 downto 0);
 signal  my_address : std_logic_vector ( 21 downto 0);
 signal  my_data : std_logic_vector ( 15 downto 0);
 
@@ -641,7 +649,7 @@ begin
       rk_sdcard_debug => rk_sddebug,
 
       have_rh => have_rh,
-      have_rh_debug => 0,
+      have_rh_debug => 1,
       rh_sdcard_cs => rh_cs,
       rh_sdcard_mosi => rh_mosi,
       rh_sdcard_sclk => rh_sclk,
@@ -657,7 +665,7 @@ begin
       cts1 => cts1,
       rts1 => rts1,
       kl1_rtscts => 1,
-      kl1_bps => 300, --9600, --38400,
+      kl1_bps => 9600, --38400,
 
       cons_run => t_cons_run,
 --      cons_cont => not t_cons_cont,
@@ -704,8 +712,8 @@ begin
       cons_map18 => cons_map18,
       cons_map22 => cons_map22,
 
-      modelcode => 45, --20,--70,				-- mostly used are 20,34,44,45,70,94; others are less well tested
-      have_fp => 1,
+      modelcode => 70, --45, --20,--70,				-- mostly used are 20,34,44,45,70,94; others are less well tested
+      have_fp => 0,
 
       reset => cpureset,
       clk50mhz => clkin,
@@ -789,17 +797,7 @@ begin
 --   have_rh <= 1; have_rl <= 0; have_rk <= 0;
 --   have_rh <= 0;
 
---7segment digits---35---30---25---20---15---10----5----0
---Octal digits---------------------------15-12-9--6--3--0
---  my_digits(39 downto 35) <= "11111"; -- all segments off
---  my_digits(32 downto 30) <= addrq(17 downto 15);
---  my_digits(27 downto 25) <= addrq(14 downto 12);
---  my_digits(22 downto 20) <= addrq(11 downto  9);
---  my_digits(17 downto 15) <= addrq( 8 downto  6);
---  my_digits(12 downto 10) <= addrq( 5 downto  3);
---  my_digits (7 downto  5) <= addrq( 2 downto  0);
---  my_digits( 4 downto  0) <= "11111"; -- all segments off
-
+---------------------------------------------------------------------------------------------
 	U2_138_select <= '1';
 	U3_138_select <= '0';
   
@@ -919,14 +917,21 @@ end process;
                beep <= '1';
             end if;
 
-            if switch(0) = '0' then                  -- swap boot drives when button 0 pressed
+            if switch(2) = '0' then                  -- swap boot drives when button 2 pressed
+               have_rh <= 1;
+               have_rk <= 0;
+               have_rl <= 0;
+            else if switch(0) = '0' then             -- swap boot drives when button 0 pressed
+               have_rh <= 0;
                have_rl <= 1;
                have_rk <= 0;
             else
+               have_rh <= 0;
                have_rl <= 0;
                have_rk <= 1;
-            end if;
-         else
+            end if; end if;			
+
+				else
 
             case dram_fsm is
 

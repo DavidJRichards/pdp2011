@@ -36,8 +36,8 @@ entity top is
 
       rx1 : in std_logic;
       tx1 : out std_logic;
-      cts1 : in std_logic;
-      rts1 : out std_logic;
+--      cts1 : in std_logic;
+--      rts1 : out std_logic;
 
       rx2: in std_logic;
       tx2: out std_logic;
@@ -49,9 +49,11 @@ entity top is
       sdcard_sclk : out std_logic;
       sdcard_miso : in std_logic;
 
---      panel_xled : out std_logic_vector(5 downto 0);
---      panel_col : inout std_logic_vector(11 downto 0);
---      panel_row : out std_logic_vector(2 downto 0);
+-- when these are defined here then pins must exist
+-- alternative definitions below if output not needed
+      panel_xled : out std_logic_vector(5 downto 0);
+      panel_col : inout std_logic_vector(11 downto 0);
+      panel_row : out std_logic_vector(2 downto 0);
 
 -- ethernet, enc424j600 controller interface
       xu_cs : out std_logic;
@@ -105,7 +107,7 @@ component unibus is
       cpu_addr_v : out std_logic_vector(15 downto 0);                -- virtual address from cpu, for debug and general interest
 
 -- rl controller
-      have_rl : in integer range 0 to 1 := 1;                        -- enable conditional compilation
+      have_rl : in integer range 0 to 1 := 0;                        -- enable conditional compilation
       have_rl_debug : in integer range 0 to 1 := 1;                  -- enable debug core
       rl_sdcard_cs : out std_logic;
       rl_sdcard_mosi : out std_logic;
@@ -114,7 +116,7 @@ component unibus is
       rl_sdcard_debug : out std_logic_vector(3 downto 0);            -- debug/blinkenlights
 
 -- rk controller
-      have_rk : in integer range 0 to 1 := 1;                        -- enable conditional compilation
+      have_rk : in integer range 0 to 1 := 0;                        -- enable conditional compilation
       have_rk_debug : in integer range 0 to 2 := 1;                  -- enable debug core; 0=none; 1=all; 2=debug blinkenlights only
       have_rk_num : in integer range 1 to 8 := 8;                    -- active number of drives on the controller; set to < 8 to save core
       have_rk_minimal : in integer range 0 to 1 := 0;                -- 1 for smaller core, but not very compatible controller. Useful to fit s3b200 only
@@ -134,7 +136,7 @@ component unibus is
       rh_sdcard_debug : out std_logic_vector(3 downto 0);            -- debug/blinkenlights
 
 -- xu enc424j600 controller interface
-      have_xu : in integer range 0 to 1 := 0;                        -- enable conditional compilation
+      have_xu : in integer range 0 to 1 := 1;                        -- enable conditional compilation
       have_xu_debug : in integer range 0 to 1 := 1;                  -- enable debug core
       xu_cs : out std_logic;
       xu_mosi : out std_logic;
@@ -340,9 +342,10 @@ end component;
 
 
 ------------------------------------------------------------------------------------------------
-signal      panel_xled :  std_logic_vector(5 downto 0);
-signal      panel_col :  std_logic_vector(11 downto 0);
-signal      panel_row :  std_logic_vector(2 downto 0);
+--enable here if not using external pins
+--signal      panel_xled :  std_logic_vector(5 downto 0);
+--signal      panel_col :  std_logic_vector(11 downto 0);
+--signal      panel_row :  std_logic_vector(2 downto 0);
 
 signal c0 : std_logic;
 
@@ -608,7 +611,7 @@ begin
       rk_sdcard_debug => rk_sddebug,
 
       have_rh => have_rh,
-      have_rh_debug => 0,
+      have_rh_debug => 1,
       rh_sdcard_cs => rh_cs,
       rh_sdcard_mosi => rh_mosi,
       rh_sdcard_sclk => rh_sclk,
@@ -634,7 +637,7 @@ begin
       cons_ena =>  t_cons_ena,
 --      cons_start => t_cons_start,
 
-      have_xu => 0,
+      have_xu => 1,
       xu_cs => xu_cs,
       xu_mosi => xu_mosi,
       xu_sclk => xu_sclk,
@@ -673,8 +676,8 @@ begin
       cons_map18 => cons_map18,
       cons_map22 => cons_map22,
 
-      modelcode => 45, --20,--70,				-- mostly used are 20,34,44,45,70,94; others are less well tested
-      have_fp => 1,
+      modelcode => 70, --20,--70,				-- mostly used are 20,34,44,45,70,94; others are less well tested
+      have_fp => 0,
 
       reset => cpureset,
       clk50mhz => clkin,
@@ -692,7 +695,12 @@ begin
 --   redled <= ps2k_c & ps2k_d & ifetch & rxrx0;
 --   redled <= txtx1 & rxrx1 & txtx0 & rxrx0;
 --   redled(7 downto 4) <= txtx1 & rx1 & txtx0 & rxrx0;
-   redled(7 downto 4) <= "1111";
+     redled(7) <= txtx1;
+     redled(6) <= rx1;
+     redled(5) <= txtx2;
+     redled(4) <= rx2;
+	  
+--   redled(7 downto 4) <= "1111";
 --   redled <= (not sddebug);
 
 --redled(0) <= ( txtx1);
@@ -860,13 +868,20 @@ end process;
               beep <= '1';
             end if;
 
-            if switch(0) = '0' then                  -- swap boot drives when button 0 pressed
+            if switch(2) = '0' then                  -- swap boot drives when button 2 pressed
+               have_rh <= 1;
+               have_rk <= 0;
+               have_rl <= 0;
+            else if switch(0) = '0' then             -- swap boot drives when button 0 pressed
+               have_rh <= 0;
                have_rl <= 1;
                have_rk <= 0;
             else
+               have_rh <= 0;
                have_rl <= 0;
                have_rk <= 1;
-            end if;
+            end if; end if;
+				
          else
 
             case dram_fsm is
