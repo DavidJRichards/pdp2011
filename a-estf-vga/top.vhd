@@ -47,7 +47,8 @@ entity top is
       cts1 : in std_logic;
       rts1 : out std_logic;
 
-
+      rx2 : in std_logic;
+      tx2 : out std_logic;
 
       sdcard_cs : out std_logic;
       sdcard_mosi : out std_logic;
@@ -150,7 +151,7 @@ component unibus is
       xu_debug_tx : out std_logic;                                   -- rs232, 115200/8/n/1 debug output from microcode
 
 -- kl11, console ports
-      have_kl11 : in integer range 0 to 4 := 2;                      -- conditional compilation - number of kl11 controllers to include. Should normally be at least 1
+      have_kl11 : in integer range 0 to 4 := 3;                      -- conditional compilation - number of kl11 controllers to include. Should normally be at least 1
 
       tx0 : out std_logic;
       rx0 : in std_logic := '1';
@@ -325,6 +326,7 @@ component paneldriver is
       sample_cycles : in std_logic_vector(15 downto 0) := x"0400";
       minon_cycles : in std_logic_vector(15 downto 0) := x"0400";
 
+-- djrm, additions for local 7seg displays
 		cons_addr : out std_logic_vector(21 downto 0);
 		cons_data : out std_logic_vector(15 downto 0);
 
@@ -378,6 +380,14 @@ end component;
 --signal      panel_col :  std_logic_vector(11 downto 0);
 --signal      panel_row :  std_logic_vector(2 downto 0);
 
+-- virtual serial ports for run time swapping
+--signal vtx0 : std_logic;
+--signal vrx0 : std_logic;
+--signal vtx1 : std_logic;
+--signal vrx1 : std_logic;
+--signal vtx2 : std_logic;
+--signal vrx2 : std_logic;
+
 signal c0 : std_logic;
 
 signal cpuclk : std_logic := '0';
@@ -406,6 +416,9 @@ signal rxrx0 : std_logic;
 
 signal txtx1 : std_logic;
 signal rxrx1 : std_logic;
+
+signal txtx2 : std_logic;
+signal rxrx2 : std_logic;
 
 signal addr : std_logic_vector(21 downto 0);
 --signal addrq : std_logic_vector(21 downto 0);
@@ -656,7 +669,7 @@ begin
       rh_sdcard_miso => rh_miso,
       rh_sdcard_debug => rh_sddebug,
 
-      have_kl11 => 2,						-- 
+      have_kl11 => 3,						-- 
       rx0 => rxrx0,
       tx0 => txtx0,
 		
@@ -667,6 +680,10 @@ begin
       kl1_rtscts => 1,
       kl1_bps => 9600, --38400,
 
+      rx2 => rxrx2,
+      tx2 => txtx2,
+      kl2_bps => 9600, --38400,
+	
       cons_run => t_cons_run,
 --      cons_cont => not t_cons_cont,
       cons_cont => t_cons_cont,
@@ -753,25 +770,37 @@ begin
    redled(7 downto 4) <= txtx1 & rxrx1 & txtx0 & rxrx0;
 --   redled <= (not sddebug);
    t_reset <= switch(1);
-
+	
+ 
 --   t_cons_ena <= switch(2); // debounced
 --   t_cons_ena <= enablebtn;
 --   t_cons_cont <= not switch(3);
 
-  redled(0) <= t_cons_run;
+  redled(0) <= not t_cons_run;
   redled(1) <= t_reset;
   redled(2) <= t_cons_ena;
 --  redled(3) <= not t_cons_cont; //invisible
   redled(3) <= db_switch3;
 
   led_run <= t_cons_run;
-  
-	-- disabe VGA terminala
-   tx1 <= txtx1;
-   rxrx1 <= rx1;
--- enable serial terminal
+
+-- patch pins to port logic (Ext serial)
+   tx2 <= txtx2;
+   rxrx2 <= rx2;
+
+	-- disabe VGA terminal (VGA)
+--   tx1 <= txtx1;
+--   rxrx1 <= rx1;
+	
+-- enable serial terminal ()
 --   tx1 <= txtx0;
 --   rxrx0 <= rx1;
+
+--vrx0 <= rxrx0;
+--txtx0 <= vtx0;
+--vrx1 <= rxrx1;
+--txtx1 <= vtx1;
+
 
    sddebug <= rh_sddebug when have_rh = 1 else rl_sddebug when have_rl = 1 else rk_sddebug;
    sdcard_cs <= rh_cs when have_rh = 1 else rl_cs when have_rl = 1 else rk_cs;
@@ -833,8 +862,7 @@ begin
     end if;
 end process;
 
---LED_activating_counter <= refresh_counter(18 downto 17);
-LED_activating_counter <= refresh_counter(20 downto 18);
+LED_activating_counter <= refresh_counter(19 downto 17); -- onboard 7seg mpx rate
 
 process(LED_activating_counter, reset)
 begin
@@ -889,6 +917,15 @@ begin
    end if;
 end process;
 
+	process(c0)
+	begin
+--		vrx0 <= rxrx0 when (t_reset='1') else rxrx1;
+--		txtx0 <= vtx0 when (t_reset='1') else vtx1;
+--		vrx1 <= rxrx1 when (t_reset='1') else rxrx0;
+--		txtx1 <= vtx1 when (t_reset='1') else vtx1;
+--		beep <= '1' when (t_teset='1') else '0';
+
+	end process;
 
 
    process(c0)
@@ -912,11 +949,12 @@ end process;
             cpuresetlength <= 63;
 
             if switch(1) = '0' then                  -- beep when button 1 pressed
-               beep <= '0';
+               beep <= '0'; -- sound
             else
-               beep <= '1';
+               beep <= '1'; -- quiet
             end if;
-
+				
+				
             if switch(2) = '0' then                  -- swap boot drives when button 2 pressed
                have_rh <= 1;
                have_rk <= 0;

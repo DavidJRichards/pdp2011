@@ -4,7 +4,7 @@ JedecChain;
 	DefaultMfr(6E);
 
 	P ActionCode(Cfg)
-		Device PartName(EP4CE22F17) Path("C:/GitHub/pdp2011/a-estf/") File("top.sof") MfrSpec(OpMask(1));
+		Device PartName(EP4CE22F17) Path("C:/GitHub/pdp2011/a-estf/") File("top-autoboot.sof") MfrSpec(OpMask(1));
 
 ChainEnd;
 
