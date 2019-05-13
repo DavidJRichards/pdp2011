@@ -380,14 +380,6 @@ end component;
 --signal      panel_col :  std_logic_vector(11 downto 0);
 --signal      panel_row :  std_logic_vector(2 downto 0);
 
--- virtual serial ports for run time swapping
---signal vtx0 : std_logic;
---signal vrx0 : std_logic;
---signal vtx1 : std_logic;
---signal vrx1 : std_logic;
---signal vtx2 : std_logic;
---signal vrx2 : std_logic;
-
 signal c0 : std_logic;
 
 signal cpuclk : std_logic := '0';
@@ -401,6 +393,9 @@ signal ifetch: std_logic;
 signal iwait: std_logic;
 signal reset: std_logic;
 
+signal txC : std_logic;
+signal rxC : std_logic;
+
 signal txtx0 : std_logic;
 signal rxrx0 : std_logic;
 
@@ -408,11 +403,11 @@ signal rxrx0 : std_logic;
   signal t_cons_cont: std_logic;
   signal db_switch3: std_logic;
   signal t_cons_ena: std_logic;
-  signal t_cons_run: std_logic;
-  
+  signal t_cons_run: std_logic;  
   signal t_reset: std_logic;
   signal t_cont: std_logic;
   signal t_ena: std_logic;
+  signal t_swapcon: std_logic;
 
 signal txtx1 : std_logic;
 signal rxrx1 : std_logic;
@@ -601,7 +596,6 @@ begin
 	)
 	port map(
 		clk => clkin,
---		button => switch(2),
 		button => sw_halt,
 		result => t_cons_ena
 	);
@@ -612,7 +606,6 @@ begin
 	)
 	port map(
 		clk => clkin,
---		button => switch(3),
 		button => sw_cont,
 		result => db_switch3
 	);
@@ -742,14 +735,8 @@ begin
       vga_vsync => vga_vsync,
       vga_out => vga_out,
 
-
--- control Serial / VGA terminal
--- enable vga
-      rx => txtx0,
-      tx => rxrx0,
--- disable vga
---      rx => txtx1,
---      tx => rxrx1,
+      rx => txC, -- serial channel
+      tx => rxC,
 
       ps2k_c => ps2k_c,
       ps2k_d => ps2k_d,
@@ -770,37 +757,25 @@ begin
    redled(7 downto 4) <= txtx1 & rxrx1 & txtx0 & rxrx0;
 --   redled <= (not sddebug);
    t_reset <= switch(1);
-	
+	t_swapcon <= switch(3);
  
---   t_cons_ena <= switch(2); // debounced
---   t_cons_ena <= enablebtn;
---   t_cons_cont <= not switch(3);
+   redled(0) <= not t_cons_run;
+   redled(1) <= t_reset;
+   redled(2) <= t_cons_ena;
+   redled(3) <= db_switch3; -- not t_cons_cont is too brief to vieiw
 
-  redled(0) <= not t_cons_run;
-  redled(1) <= t_reset;
-  redled(2) <= t_cons_ena;
---  redled(3) <= not t_cons_cont; //invisible
-  redled(3) <= db_switch3;
+   led_run <= t_cons_run;
 
-  led_run <= t_cons_run;
+-- When switch 3 is closed (reboot not needed)
+-- swap VGA console with onboard ESTF serial port	
+   txC <= txtx0 when (t_swapcon='1') else txtx1;
+   rxrx0 <= rxC when (t_swapcon='1') else rx1;
+   tx1 <= txtx1 when (t_swapcon='1') else txtx0;
+   rxrx1 <= rx1 when (t_swapcon='1') else rxC;
 
--- patch pins to port logic (Ext serial)
+-- Ext serial with h/s
    tx2 <= txtx2;
    rxrx2 <= rx2;
-
-	-- disabe VGA terminal (VGA)
---   tx1 <= txtx1;
---   rxrx1 <= rx1;
-	
--- enable serial terminal ()
---   tx1 <= txtx0;
---   rxrx0 <= rx1;
-
---vrx0 <= rxrx0;
---txtx0 <= vtx0;
---vrx1 <= rxrx1;
---txtx1 <= vtx1;
-
 
    sddebug <= rh_sddebug when have_rh = 1 else rl_sddebug when have_rl = 1 else rk_sddebug;
    sdcard_cs <= rh_cs when have_rh = 1 else rl_cs when have_rl = 1 else rk_cs;
@@ -819,16 +794,12 @@ begin
    vgah <= vga_hsync;
 
    dram_match <= '1' when addr(21 downto 18) /= "1111" else '0';
---   dram_match <= '1' when addr(21) /= '1' else '0';
    dram_cke <= '1';
    dram_clk <= c0;
 
---   have_rh <= 1; have_rl <= 0; have_rk <= 0;
---   have_rh <= 0;
-
 ---------------------------------------------------------------------------------------------
-	U2_138_select <= '1';
-	U3_138_select <= '0';
+	U2_138_select <= '1'; -- enable 7 seg digits
+	U3_138_select <= '0'; -- disable 8x8 matrix
   
 process(LED_BCD)
 begin
@@ -917,17 +888,6 @@ begin
    end if;
 end process;
 
-	process(c0)
-	begin
---		vrx0 <= rxrx0 when (t_reset='1') else rxrx1;
---		txtx0 <= vtx0 when (t_reset='1') else vtx1;
---		vrx1 <= rxrx1 when (t_reset='1') else rxrx0;
---		txtx1 <= vtx1 when (t_reset='1') else vtx1;
---		beep <= '1' when (t_teset='1') else '0';
-
-	end process;
-
-
    process(c0)
    begin
       if c0='1' and c0'event then
@@ -953,8 +913,7 @@ end process;
             else
                beep <= '1'; -- quiet
             end if;
-				
-				
+								
             if switch(2) = '0' then                  -- swap boot drives when button 2 pressed
                have_rh <= 1;
                have_rk <= 0;
