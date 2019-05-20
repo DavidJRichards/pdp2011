@@ -58,7 +58,7 @@ entity top is
 -- when these are defined here then pins must exist
 -- alternative definitions below if output not needed
       panel_xled : out std_logic_vector(5 downto 0);
-      panel_col : inout std_logic_vector(11 downto 0);
+      panel_col : inout std_logic_vector(11 downto 0); -- for switches		
       panel_row : out std_logic_vector(2 downto 0);
 
 -- ethernet, enc424j600 controller interface
@@ -106,6 +106,7 @@ component unibus is
       control_dato : out std_logic;                                  -- if '1', this is an output cycle
       control_datob : out std_logic;                                 -- if '1', the current output cycle is for a byte
       addr_match : in std_logic;                                     -- '1' if the address is recognized
+		init : out std_logic;
 
 -- debug & blinkenlights
       ifetch : out std_logic;                                        -- '1' if this cycle is an ifetch cycle
@@ -403,11 +404,11 @@ signal rxrx0 : std_logic;
   signal t_cons_cont: std_logic;
   signal db_switch3: std_logic;
   signal t_cons_ena: std_logic;
-  signal t_cons_run: std_logic;  
   signal t_reset: std_logic;
   signal t_cont: std_logic;
   signal t_ena: std_logic;
   signal t_swapcon: std_logic;
+  signal t_init: std_logic;
 
 signal txtx1 : std_logic;
 signal rxrx1 : std_logic;
@@ -636,6 +637,7 @@ begin
       addr_match => dram_match,
 
       ifetch => ifetch,
+		init => t_init,
 --      iwait => iwait,
 
       have_rl => have_rl,
@@ -677,12 +679,6 @@ begin
       tx2 => txtx2,
       kl2_bps => 9600, --38400,
 	
-      cons_run => t_cons_run,
---      cons_cont => not t_cons_cont,
-      cons_cont => t_cons_cont,
-      cons_ena =>  t_cons_ena,
---      cons_start => t_cons_start,
-
       have_xu => 1,
       xu_cs => xu_cs,
       xu_mosi => xu_mosi,
@@ -693,8 +689,10 @@ begin
       cons_load => cons_load,
       cons_exa => cons_exa,
       cons_dep => cons_dep,
---      cons_cont => cons_cont,
---      cons_ena => cons_ena,
+      cons_cont => cons_cont, -- console
+--      cons_cont => t_cons_cont, -- local
+      cons_ena => cons_ena, -- console
+--      cons_ena =>  t_cons_ena, -- local
       cons_start => cons_start,
       cons_sw => cons_sw,
       cons_adss_mode => cons_adss_mode,
@@ -711,8 +709,8 @@ begin
       cons_parl => cons_parl,
 
       cons_adrserr => cons_adrserr,
---      cons_run => cons_run,
-      cons_pause => cons_pause,
+      cons_run => cons_run,
+		cons_pause => cons_pause,
       cons_master => cons_master,
       cons_kernel => cons_kernel,
       cons_super => cons_super,
@@ -759,12 +757,13 @@ begin
    t_reset <= switch(1);
 	t_swapcon <= switch(3);
  
-   redled(0) <= not t_cons_run;
-   redled(1) <= t_reset;
+   redled(0) <= not cons_run;
+--   redled(1) <= t_reset;
+   redled(1) <= t_init;
    redled(2) <= t_cons_ena;
    redled(3) <= db_switch3; -- not t_cons_cont is too brief to vieiw
 
-   led_run <= t_cons_run;
+   led_run <= cons_run;
 
 -- When switch 3 is closed (reboot not needed)
 -- swap VGA console with onboard ESTF serial port	

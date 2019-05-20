@@ -29,7 +29,7 @@ entity unibus is
       control_dato : out std_logic;                                  -- if '1', this is an output cycle
       control_datob : out std_logic;                                 -- if '1', the current output cycle is for a byte
       addr_match : in std_logic;                                     -- '1' if the address is recognized
-
+		init : out std_logic;
 -- debug & blinkenlights
       ifetch : out std_logic;                                        -- '1' if this cycle is an ifetch cycle
       iwait : out std_logic;                                         -- '1' if the cpu is in wait state
