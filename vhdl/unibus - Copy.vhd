@@ -433,6 +433,25 @@ component m9312h is
    );
 end component;
 
+component blockram2 is
+   port(
+      base_addr : in std_logic_vector(17 downto 0);
+
+      bus_addr_match : out std_logic;
+      bus_addr : in std_logic_vector(17 downto 0);
+      bus_dati : out std_logic_vector(15 downto 0);
+      bus_dato : in std_logic_vector(15 downto 0);
+      bus_control_dati : in std_logic;
+      bus_control_dato : in std_logic;
+      bus_control_datob : in std_logic;
+
+      reset : in std_logic;
+      clk : in std_logic
+   );
+end component;
+
+
+
 component kl11 is
    port(
       base_addr : in std_logic_vector(17 downto 0);
@@ -840,6 +859,9 @@ signal rom0_dati : std_logic_vector(15 downto 0);
 signal rom1_addr_match : std_logic;
 signal rom1_dati : std_logic_vector(15 downto 0);
 
+signal rom2_addr_match : std_logic;
+signal rom2_dati : std_logic_vector(15 downto 0);
+
 signal csdr_addr_match : std_logic;
 signal csdr_dati : std_logic_vector(15 downto 0);
 
@@ -1158,20 +1180,20 @@ begin
       clk => nclk
    );
 
---    blockram0: blockram port map(
---       base_addr => o"000000",
---
---       bus_addr_match => rom_addr_match,
---       bus_addr => bus_addr,
---       bus_dati => rom_dati,
---       bus_dato => bus_dato,
---       bus_control_dati => bus_control_dati,
---       bus_control_dato => bus_control_dato,
---       bus_control_datob => bus_control_datob,
---
---       reset => reset,
---       clk => nclk
---    );
+    blockram2a: blockram2 port map(
+       base_addr => o"130000",
+
+       bus_addr_match => rom2_addr_match,
+       bus_addr => unibus_addr,
+       bus_dati => rom2_dati,
+       bus_dato => unibus_dato,
+       bus_control_dati => unibus_control_dati,
+       bus_control_dato => unibus_control_dato,
+       bus_control_datob => unibus_control_datob,
+
+       reset => reset,
+       clk => nclk
+    );
 
   kw0: kw11l port map(
       base_addr => o"777546",
@@ -1620,6 +1642,7 @@ begin
       else csdr_dati when csdr_addr_match = '1'
       else rom0_dati when rom0_addr_match = '1'
       else rom1_dati when rom1_addr_match = '1'
+--      else rom2_dati when rom2_addr_match = '1'
       else rl0_dati when rl0_addr_match = '1'
       else rk0_dati when rk0_addr_match = '1'
       else rh0_dati when rh0_addr_match = '1'
@@ -1637,6 +1660,7 @@ begin
       or csdr_addr_match = '1'
       or rom0_addr_match = '1'
       or rom1_addr_match = '1'
+--      or rom2_addr_match = '1'
       or rl0_addr_match = '1'
       or rk0_addr_match = '1'
       or rh0_addr_match = '1'

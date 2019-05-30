@@ -636,7 +636,7 @@ begin
       rx1 => rx2,
       rts1 => rts2,
       cts1 => cts2,
-      kl1_bps => 2400, --300, --9600, --38400,
+      kl1_bps => 300, --2400, --9600, --38400,
       kl1_rtscts => 1,
 
       cons_run => t_cons_run,

@@ -186,15 +186,30 @@ set_location_assignment PIN_P8 -to panel_col[3]
 set_location_assignment PIN_P9 -to panel_col[2]
 set_location_assignment PIN_P11 -to panel_col[1]
 set_location_assignment PIN_R10 -to panel_col[0]
+
 set_location_assignment PIN_T10 -to panel_row[2]
 set_location_assignment PIN_E10 -to panel_row[1]
-set_location_assignment PIN_F14 -to panel_row[0]
+set_location_assignment PIN_T14 -to panel_row[0]
+
 set_location_assignment PIN_K16 -to panel_xled[5]
 set_location_assignment PIN_L14 -to panel_xled[4]
 set_location_assignment PIN_R11 -to panel_xled[3]
 set_location_assignment PIN_R13 -to panel_xled[2]
 set_location_assignment PIN_R14 -to panel_xled[1]
 set_location_assignment PIN_T11 -to panel_xled[0]
+
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to panel_col[0]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to panel_col[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to panel_col[2]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to panel_col[3]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to panel_col[4]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to panel_col[5]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to panel_col[6]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to panel_col[7]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to panel_col[8]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to panel_col[10]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to panel_col[9]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to panel_col[11]
 
 # Classic Timing Assignments
 # ==========================
@@ -210,7 +225,7 @@ set_global_assignment -name EDA_DESIGN_ENTRY_SYNTHESIS_TOOL "Design Compiler"
 # Fitter Assignments
 # ==================
 set_global_assignment -name DEVICE EP4CE22F17C8
-set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
 set_global_assignment -name CRC_ERROR_OPEN_DRAIN OFF
 set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name FORCE_CONFIGURATION_VCCIO ON
@@ -293,8 +308,13 @@ set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 # ---------------
 
 
-set_global_assignment -name VHDL_FILE ../rom/m9312h46.vhd
-set_global_assignment -name VHDL_FILE ../rom/m9312l46.vhd
+
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to panel_row[0]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to panel_row[1]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to panel_row[2]
+set_global_assignment -name VHDL_FILE ../rom/m9312l47.vhd
+set_global_assignment -name VHDL_FILE ../rom/m9312h47.vhd
+set_global_assignment -name VHDL_FILE ../rom/odt11.vhd
 set_global_assignment -name VHDL_FILE ../vhdl/xubrt45.vhd
 set_global_assignment -name VHDL_FILE ../vhdl/xubm.vhd
 set_global_assignment -name VHDL_FILE ../vhdl/xubl.vhd

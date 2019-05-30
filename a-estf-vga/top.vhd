@@ -58,7 +58,7 @@ entity top is
 -- when these are defined here then pins must exist
 -- alternative definitions below if output not needed
       panel_xled : out std_logic_vector(5 downto 0);
-      panel_col : inout std_logic_vector(11 downto 0); -- for switches		
+      panel_col : inout std_logic_vector(11 downto 0); -- i/o for LEDs and switches		
       panel_row : out std_logic_vector(2 downto 0);
 
 -- ethernet, enc424j600 controller interface
@@ -376,11 +376,7 @@ end component;
 
 
 ------------------------------------------------------------------------------------------------
---enable here if not using external pins
---signal      panel_xled :  std_logic_vector(5 downto 0);
---signal      panel_col :  std_logic_vector(11 downto 0);
---signal      panel_row :  std_logic_vector(2 downto 0);
-
+signal t_panel_col :  std_logic_vector(11 downto 0) := "111111111111";
 signal c0 : std_logic;
 
 signal cpuclk : std_logic := '0';
@@ -402,8 +398,10 @@ signal rxrx0 : std_logic;
 
   signal t_cons_start: std_logic;
   signal t_cons_cont: std_logic;
+  signal c_cons_cont: std_logic;
   signal db_switch3: std_logic;
   signal t_cons_ena: std_logic;
+  signal c_cons_ena: std_logic;
   signal t_reset: std_logic;
   signal t_cont: std_logic;
   signal t_ena: std_logic;
@@ -537,7 +535,9 @@ begin
 
    panel: paneldriver port map(
       panel_xled => panel_xled,
-      panel_col => panel_col,
+-- select just only ONE of the next two lines
+      panel_col => panel_col, -- use this to enable console
+--      panel_col => t_panel_col, -- us this to disable console
       panel_row => panel_row,
 
       cons_load => cons_load,
@@ -689,9 +689,11 @@ begin
       cons_load => cons_load,
       cons_exa => cons_exa,
       cons_dep => cons_dep,
-      cons_cont => cons_cont, -- console
+--      cons_cont => cons_cont, -- console
+      cons_cont => c_cons_cont, -- console
 --      cons_cont => t_cons_cont, -- local
-      cons_ena => cons_ena, -- console
+--      cons_ena => cons_ena, -- console
+      cons_ena => c_cons_ena, -- console
 --      cons_ena =>  t_cons_ena, -- local
       cons_start => cons_start,
       cons_sw => cons_sw,
@@ -776,6 +778,9 @@ begin
    tx2 <= txtx2;
    rxrx2 <= rx2;
 
+	c_cons_cont <= cons_cont OR t_cons_cont;
+	c_cons_ena <= cons_ena AND t_cons_ena;	
+		
    sddebug <= rh_sddebug when have_rh = 1 else rl_sddebug when have_rl = 1 else rk_sddebug;
    sdcard_cs <= rh_cs when have_rh = 1 else rl_cs when have_rl = 1 else rk_cs;
    sdcard_mosi <= rh_mosi when have_rh = 1 else rl_mosi when have_rl = 1 else rk_mosi;

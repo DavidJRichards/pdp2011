@@ -97,6 +97,35 @@ set_location_assignment PIN_7 -to sdcard_sclk
 set_location_assignment PIN_104 -to vgab
 set_location_assignment PIN_105 -to vgag
 set_location_assignment PIN_106 -to vgar
+set_location_assignment PIN_23 -to clkin
+set_location_assignment PIN_128 -to sseg0[0]
+set_location_assignment PIN_121 -to sseg0[1]
+set_location_assignment PIN_125 -to sseg0[2]
+set_location_assignment PIN_129 -to sseg0[3]
+set_location_assignment PIN_132 -to sseg0[4]
+set_location_assignment PIN_126 -to sseg0[5]
+set_location_assignment PIN_124 -to sseg0[6]
+set_location_assignment PIN_119 -to ps2k_c
+set_location_assignment PIN_120 -to ps2k_d
+set_location_assignment PIN_110 -to beep
+set_location_assignment PIN_133 -to Anode_Activate[0]
+set_location_assignment PIN_135 -to Anode_Activate[1]
+set_location_assignment PIN_136 -to Anode_Activate[2]
+set_location_assignment PIN_137 -to Anode_Activate[3]
+set_location_assignment PIN_127 -to ssegP
+set_location_assignment PIN_114 -to tx1
+set_location_assignment PIN_115 -to rx1
+set_location_assignment PIN_88 -to switch[0]
+set_location_assignment PIN_89 -to switch[1]
+set_location_assignment PIN_90 -to switch[2]
+set_location_assignment PIN_91 -to switch[3]
+set_location_assignment PIN_141 -to tx2
+set_location_assignment PIN_142 -to rx2
+set_location_assignment PIN_11 -to max7219_clock
+set_location_assignment PIN_10 -to max7219_data
+set_location_assignment PIN_138 -to max7219_load
+set_location_assignment PIN_143 -to cts2
+set_location_assignment PIN_144 -to rts2
 
 # Classic Timing Assignments
 # ==========================
@@ -193,35 +222,6 @@ set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 
 # end ENTITY(top)
 # ---------------
-set_location_assignment PIN_23 -to clkin
-set_location_assignment PIN_128 -to sseg0[0]
-set_location_assignment PIN_121 -to sseg0[1]
-set_location_assignment PIN_125 -to sseg0[2]
-set_location_assignment PIN_129 -to sseg0[3]
-set_location_assignment PIN_132 -to sseg0[4]
-set_location_assignment PIN_126 -to sseg0[5]
-set_location_assignment PIN_124 -to sseg0[6]
-set_location_assignment PIN_119 -to ps2k_c
-set_location_assignment PIN_120 -to ps2k_d
-set_location_assignment PIN_110 -to beep
-set_location_assignment PIN_133 -to Anode_Activate[0]
-set_location_assignment PIN_135 -to Anode_Activate[1]
-set_location_assignment PIN_136 -to Anode_Activate[2]
-set_location_assignment PIN_137 -to Anode_Activate[3]
-set_location_assignment PIN_127 -to ssegP
-set_location_assignment PIN_114 -to tx1
-set_location_assignment PIN_115 -to rx1
-set_location_assignment PIN_88 -to switch[0]
-set_location_assignment PIN_89 -to switch[1]
-set_location_assignment PIN_90 -to switch[2]
-set_location_assignment PIN_91 -to switch[3]
-set_location_assignment PIN_141 -to tx2
-set_location_assignment PIN_142 -to rx2
-set_location_assignment PIN_11 -to max7219_clock
-set_location_assignment PIN_10 -to max7219_data
-set_location_assignment PIN_138 -to max7219_load
-set_location_assignment PIN_143 -to cts2
-set_location_assignment PIN_144 -to rts2
 set_global_assignment -name VHDL_FILE ../vhdl/xubrt45.vhd
 set_global_assignment -name VHDL_FILE ../vhdl/xubm.vhd
 set_global_assignment -name VHDL_FILE ../vhdl/xubl.vhd

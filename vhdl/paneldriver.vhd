@@ -65,6 +65,9 @@ entity paneldriver is
 		cons_addr : out std_logic_vector(21 downto 0);
 		cons_data : out std_logic_vector(15 downto 0);
 
+		--cons_rotary1 : out std_logic vector (7 downto 0);
+		--cons_rotary2 : out std_logic vector (3 downto 0);
+
       clkin : in std_logic;
       reset : in std_logic
    );

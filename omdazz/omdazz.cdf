@@ -4,10 +4,10 @@ JedecChain;
 	DefaultMfr(6E);
 
 	P ActionCode(Cfg)
-		Device PartName(EP4CE22) Path("C:/GitHub/pdp2011/a-estf-vga/") File("output_file.jic") MfrSpec(OpMask(1) SEC_Device(EPCS64) Child_OpMask(1 1));
+		Device PartName(EPCS4) Path("C:/GitHub/pdp2011/omdazz/") File("top.pof") MfrSpec(OpMask(3) Child_OpMask(1 3));
 
 ChainEnd;
 
 AlteraBegin;
-	ChainType(JTAG);
+	ChainType(asc);
 AlteraEnd;

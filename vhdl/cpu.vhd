@@ -330,8 +330,8 @@ signal eis_flag2 : std_logic;
 -- counter for number of cycles to remain in init state
 --constant initcycles_reset : integer := 1023;
 constant initcycles_reset : integer := 65535;
---constant initcycles_reset : integer := 262143;
-signal initcycles : integer range 0 to initcycles_reset;
+constant initcycles_power : integer := 262143;
+signal initcycles : integer range 0 to initcycles_power;
 
 
 -- signals for stack trap recognition
@@ -1135,7 +1135,8 @@ begin
 
             state <= state_init;                           -- first state in the major state machine after reset
 --            initcycles <= 7;                               -- setup to stay this many cycles in state_init
-            initcycles <= initcycles_reset;                               -- setup to stay this many cycles in state_init
+--            initcycles <= initcycles_reset;                               -- setup to stay this many cycles in state_init
+            initcycles <= initcycles_power;                               -- setup to stay this many cycles in state_init
             init <= '1';                                   -- send reset signal to outside
 
             rbus_waddr <= "000000";                        -- select r0 in set 0
