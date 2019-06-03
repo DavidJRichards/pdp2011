@@ -25,6 +25,19 @@
 PLLJ_PLLSPE_INFO.txt
 cbx_args.txt
 
+a-estf-cons/*.*
+a-estf-cons/db/*.*
+a-estf-cons/html/*.*
+a-estf-cons/incremental_db
+a-estf-cons/simulation
+a-estf-cons/*.rpt
+a-estf-cons/*.summary
+a-estf-cons/*.done
+a-estf-cons/*.smsg
+a-estf-cons/*.pin
+a-estf-cons/*.jdi
+
+
 omdazz/db/*.*
 omdazz/html/*.*
 omdazz/incremental_db

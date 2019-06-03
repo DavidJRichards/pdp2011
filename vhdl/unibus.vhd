@@ -80,7 +80,7 @@ entity unibus is
       rx0 : in std_logic := '1';
       rts0 : out std_logic;
       cts0 : in std_logic := '0';
-      kl0_bps : in integer range 1200 to 230400 := 9600;             -- bps rate - don't set over 38400 for interrupt control applications
+      kl0_bps : in integer range 300 to 230400 := 9600;             -- bps rate - don't set over 38400 for interrupt control applications
       kl0_force7bit : in integer range 0 to 1 := 0;                  -- zero out high order bit on transmission and reception
       kl0_rtscts : in integer range 0 to 1 := 0;                     -- conditional compilation switch for rts and cts signals; also implies to include core that implements a silo buffer
 
@@ -88,7 +88,7 @@ entity unibus is
       rx1 : in std_logic := '1';
       rts1 : out std_logic;
       cts1 : in std_logic := '0';
-      kl1_bps : in integer range 1200 to 230400 := 9600;
+      kl1_bps : in integer range 300 to 230400 := 9600;
       kl1_force7bit : in integer range 0 to 1 := 0;
       kl1_rtscts : in integer range 0 to 1 := 0;
 
@@ -96,7 +96,7 @@ entity unibus is
       rx2 : in std_logic := '1';
       rts2 : out std_logic;
       cts2 : in std_logic := '0';
-      kl2_bps : in integer range 1200 to 230400 := 9600;
+      kl2_bps : in integer range 300 to 230400 := 9600;
       kl2_force7bit : in integer range 0 to 1 := 0;
       kl2_rtscts : in integer range 0 to 1 := 0;
 
@@ -104,7 +104,7 @@ entity unibus is
       rx3 : in std_logic := '1';
       rts3 : out std_logic;
       cts3 : in std_logic := '0';
-      kl3_bps : in integer range 1200 to 230400 := 9600;
+      kl3_bps : in integer range 300 to 230400 := 9600;
       kl3_force7bit : in integer range 0 to 1 := 0;
       kl3_rtscts : in integer range 0 to 1 := 0;
 
@@ -1198,6 +1198,9 @@ begin
 
    have_kl0 <= 1 when have_kl11 >= 1 else 0;
    kl0: kl11 port map(
+--      base_addr => o"776510",
+--      ivec => o"310",
+--      ovec => o"314",
       base_addr => o"777560", -- Console terminal,  normal
       ivec => o"060",
       ovec => o"064",
@@ -1236,13 +1239,17 @@ begin
 
    have_kl1 <= 1 when have_kl11 >= 2 else 0;
    kl1: kl11 port map(
+      base_addr => o"776510", -- 
+      ivec => o"310",
+      ovec => o"314",
+
 --      base_addr => o"776500", -- DL11 -B normal 
 --      ivec => o"300",
 --      ovec => o"304",
 
-      base_addr => o"777550", -- PTR for boot TT
-      ivec => o"070",
-      ovec => o"074",
+--      base_addr => o"777550", -- PTR for boot TT
+--      ivec => o"070",
+--      ovec => o"074",
 
 --      base_addr => o"777560", -- Console terminal, alternative
 --      ivec => o"060",
@@ -1276,9 +1283,17 @@ begin
 
    have_kl2 <= 1 when have_kl11 >= 3 else 0;
    kl2: kl11 port map(
-      base_addr => o"776510",
-      ivec => o"310",
-      ovec => o"314",
+      base_addr => o"777550", -- PTR for boot TT
+      ivec => o"070",
+      ovec => o"074",
+
+--      base_addr => o"777560", -- Console terminal,  normal
+--      ivec => o"060",
+--      ovec => o"064",
+
+--      base_addr => o"776510",
+--      ivec => o"310",
+--      ovec => o"314",
 
       br => kl2_br,
       bg => kl2_bg,

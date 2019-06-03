@@ -49,6 +49,8 @@ entity top is
 
       rx2 : in std_logic;
       tx2 : out std_logic;
+      cts2 : in std_logic;
+      rts2 : out std_logic;
 
       sdcard_cs : out std_logic;
       sdcard_mosi : out std_logic;
@@ -57,9 +59,9 @@ entity top is
 
 -- when these are defined here then pins must exist
 -- alternative definitions below if output not needed
-      panel_xled : out std_logic_vector(5 downto 0);
+      panel_xled : out std_logic_vector(5 downto 0); -- LED output multiplexor
       panel_col : inout std_logic_vector(11 downto 0); -- i/o for LEDs and switches		
-      panel_row : out std_logic_vector(2 downto 0);
+      panel_row : out std_logic_vector(2 downto 0); -- current sinks for switches
 
 -- ethernet, enc424j600 controller interface
       xu_cs : out std_logic;
@@ -158,7 +160,7 @@ component unibus is
       rx0 : in std_logic := '1';
       rts0 : out std_logic;
       cts0 : in std_logic := '0';
-      kl0_bps : in integer range 1200 to 230400 := 9600;             -- bps rate - don't set over 38400 for interrupt control applications
+      kl0_bps : in integer range 300 to 230400 := 9600;             -- bps rate - don't set over 38400 for interrupt control applications
       kl0_force7bit : in integer range 0 to 1 := 0;                  -- zero out high order bit on transmission and reception
       kl0_rtscts : in integer range 0 to 1 := 0;                     -- conditional compilation switch for rts and cts signals; also implies to include core that implements a silo buffer
 
@@ -166,15 +168,15 @@ component unibus is
       rx1 : in std_logic := '1';
       rts1 : out std_logic;
       cts1 : in std_logic := '0';
-      kl1_bps : in integer range 300 to 230400 := 2400;              -- note, mod for 300 bps
+      kl1_bps : in integer range 300 to 230400 := 9600;              -- note, mod for 300 bps
       kl1_force7bit : in integer range 0 to 1 := 0;
-      kl1_rtscts : in integer range 0 to 1 := 1;
+      kl1_rtscts : in integer range 0 to 1 := 0;
 
       tx2 : out std_logic;
       rx2 : in std_logic := '1';
       rts2 : out std_logic;
       cts2 : in std_logic := '0';
-      kl2_bps : in integer range 1200 to 230400 := 9600;
+      kl2_bps : in integer range 300 to 230400 := 38400;
       kl2_force7bit : in integer range 0 to 1 := 0;
       kl2_rtscts : in integer range 0 to 1 := 0;
 
@@ -182,7 +184,7 @@ component unibus is
       rx3 : in std_logic := '1';
       rts3 : out std_logic;
       cts3 : in std_logic := '0';
-      kl3_bps : in integer range 1200 to 230400 := 9600;
+      kl3_bps : in integer range 300 to 230400 := 9600;
       kl3_force7bit : in integer range 0 to 1 := 0;
       kl3_rtscts : in integer range 0 to 1 := 0;
 
@@ -664,21 +666,28 @@ begin
       rh_sdcard_miso => rh_miso,
       rh_sdcard_debug => rh_sddebug,
 
+		-- PS2/VGA console
       have_kl11 => 3,						-- 
       rx0 => rxrx0,
       tx0 => txtx0,
 		
+		-- estf RS232 port
       rx1 => rxrx1,
       tx1 => txtx1,
       cts1 => cts1,
       rts1 => rts1,
-      kl1_rtscts => 1,
-      kl1_bps => 9600, --38400,
+--      kl1_rtscts => 1,
+      kl1_bps => 9600, -- alternative console
 
+		-- external RS232 port
+      cts2 => cts2,
+      rts2 => rts2,
+      kl2_rtscts => 1,
       rx2 => rxrx2,
       tx2 => txtx2,
-      kl2_bps => 9600, --38400,
-	
+      kl2_bps => 38400, -- tape reader
+
+		-- ethernet port
       have_xu => 1,
       xu_cs => xu_cs,
       xu_mosi => xu_mosi,
@@ -779,7 +788,7 @@ begin
    rxrx2 <= rx2;
 
 	c_cons_cont <= cons_cont OR t_cons_cont;
-	c_cons_ena <= cons_ena AND t_cons_ena;	
+	c_cons_ena <= cons_ena XOR t_cons_ena;	
 		
    sddebug <= rh_sddebug when have_rh = 1 else rl_sddebug when have_rl = 1 else rk_sddebug;
    sdcard_cs <= rh_cs when have_rh = 1 else rl_cs when have_rl = 1 else rk_cs;
@@ -846,48 +855,29 @@ begin
    else
       case LED_activating_counter is
         when "000" =>
-        Anode_Activate <= "111"; 
-        -- activate LED1 and Deactivate LED2, LED3, LED4
---        LED_BCD <= "000" & addrq( 21);
-        LED_BCD <= "1111";
-        -- the first hex digit of the 16-bit number
+          Anode_Activate <= "111"; 
+          LED_BCD <= "1111"; -- all segments off
         when "001" =>
-        Anode_Activate <= "000"; 
-        -- activate LED2 and Deactivate LED1, LED3, LED4
---        LED_BCD <= '0' & addrq(20 downto 18);
-        LED_BCD <= "1111";
-        -- the second hex digit of the 16-bit number
+          Anode_Activate <= "110"; 
+          LED_BCD <= "1111"; -- all segments off
         when "010" =>
-        Anode_Activate <= "110"; 
-        -- activate LED3 and Deactivate LED2, LED1, LED4
---        LED_BCD <= '0' & my_data(17 downto 15);
-        LED_BCD <= "000" & my_data( 15);
-        -- the third hex digit of the 16-bit number
+          Anode_Activate <= "101"; 
+          LED_BCD <= "000" & my_data( 15);
         when "011" =>
-        Anode_Activate <= "101"; 
-        -- activate LED4 and Deactivate LED2, LED3, LED1
-        LED_BCD <= '0' & my_data(14 downto 12);
-        -- the fourth hex digit of the 16-bit number    
+          Anode_Activate <= "100"; 
+          LED_BCD <= '0' & my_data(14 downto 12);
         when "100" =>
-        Anode_Activate <= "100"; 
-        -- activate LED1 and Deactivate LED2, LED3, LED4
-        LED_BCD <= '0' & my_data(11 downto 9);
-        -- the first hex digit of the 16-bit number
+          Anode_Activate <= "011"; 
+          LED_BCD <= '0' & my_data(11 downto 9);
         when "101" =>
-        Anode_Activate <= "011"; 
-        -- activate LED2 and Deactivate LED1, LED3, LED4
-        LED_BCD <= '0' & my_data(8 downto 6);
-        -- the second hex digit of the 16-bit number
+          Anode_Activate <= "010"; 
+          LED_BCD <= '0' & my_data(8 downto 6);
         when "110" =>
-        Anode_Activate <= "010"; 
-        -- activate LED3 and Deactivate LED2, LED1, LED4
-        LED_BCD <= '0' & my_data(5 downto 3);
-        -- the third hex digit of the 16-bit number
+          Anode_Activate <= "001"; 
+         LED_BCD <= '0' & my_data(5 downto 3);
         when "111" =>
-        Anode_Activate <= "001"; 
-        -- activate LED4 and Deactivate LED2, LED3, LED1
-        LED_BCD <= '0' & my_data(2 downto 0);
-        -- the fourth hex digit of the 16-bit number    
+          Anode_Activate <= "000"; 
+          LED_BCD <= '0' & my_data(2 downto 0);
       end case;
    end if;
 end process;

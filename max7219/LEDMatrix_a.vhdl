@@ -77,12 +77,14 @@ begin
                 if updating_display then
                     -- run the update procedure
 							case led_addr is
-							when "0010" => digit := "00" & unsigned(LED_DIGITS(  2 downto  0 ));
-							when "0011" => digit := "00" & unsigned(LED_DIGITS(  5 downto  3 ));
-							when "0100" => digit := "00" & unsigned(LED_DIGITS(  8 downto  6 ));
-							when "0101" => digit := "00" & unsigned(LED_DIGITS( 11 downto  9 ));
-							when "0110" => digit := "00" & unsigned(LED_DIGITS( 14 downto 12 ));
-							when "0111" => digit := "00" & unsigned(LED_DIGITS( 17 downto 15 ));
+							when "0001" => digit := "00" & unsigned(LED_DIGITS(  2 downto  0 ));
+							when "0010" => digit := "00" & unsigned(LED_DIGITS(  5 downto  3 ));
+							when "0011" => digit := "00" & unsigned(LED_DIGITS(  8 downto  6 ));
+							when "0100" => digit := "00" & unsigned(LED_DIGITS( 11 downto  9 ));
+							when "0101" => digit := "00" & unsigned(LED_DIGITS( 14 downto 12 ));
+							when "0110" => digit := "00" & unsigned(LED_DIGITS( 17 downto 15 ));
+							when "0111" => digit := "00" & unsigned(LED_DIGITS( 20 downto 18 ));
+							when "1000" => digit := "0000" & LED_DIGITS( 21 );
 							when others => digit := "11111"; -- all segments off
 							end case;
 							  update_display(led_addr, digit );
