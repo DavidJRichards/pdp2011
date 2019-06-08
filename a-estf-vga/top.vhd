@@ -909,18 +909,27 @@ end process;
             end if;
 								
             if switch(2) = '0' then                  -- swap boot drives when button 2 pressed
-               have_rh <= 1;
-               have_rk <= 0;
-               have_rl <= 0;
-            else if switch(0) = '0' then             -- swap boot drives when button 0 pressed
-               have_rh <= 0;
-               have_rl <= 1;
-               have_rk <= 0;
-            else
-               have_rh <= 0;
-               have_rl <= 0;
-               have_rk <= 1;
-            end if; end if;			
+					if switch(0) = '0' then               -- swap boot drives when button 0 pressed
+						have_rh <= 1;
+						have_rk <= 0;
+						have_rl <= 0;
+					else
+						-- no drives
+						have_rh <= 0;
+						have_rk <= 0;
+						have_rl <= 0;
+					end if; 					
+            else 
+					if switch(0) = '0' then               -- swap boot drives when button 0 pressed
+						have_rh <= 0;
+						have_rl <= 1;
+						have_rk <= 0;
+					else
+						have_rh <= 0;
+						have_rl <= 0;
+						have_rk <= 1;
+					end if; 
+				end if;			
 
 				else
 

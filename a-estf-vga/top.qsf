@@ -312,8 +312,9 @@ set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 # ---------------
 
 
-set_global_assignment -name VHDL_FILE ../rom/m9312l47.vhd
+set_global_assignment -name VHDL_FILE ../rom/monitor.vhd
 set_global_assignment -name VHDL_FILE ../rom/m9312h47.vhd
+set_global_assignment -name VHDL_FILE ../rom/m9312l47.vhd
 set_global_assignment -name VHDL_FILE ../vhdl/xubrt45.vhd
 set_global_assignment -name VHDL_FILE ../vhdl/xubm.vhd
 set_global_assignment -name VHDL_FILE ../vhdl/xubl.vhd

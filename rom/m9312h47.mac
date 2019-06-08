@@ -84,7 +84,11 @@ norp:
          mov   #nodev,r2
          mov   pc,r1
          br    bprtascz
-         halt
+;         halt
+         clr   @#4
+         clr   @#6
+         clr   r0
+         jmp   @#160000
          
 ; --------------------------------------------------
 ; rl 

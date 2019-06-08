@@ -407,6 +407,23 @@ component csdr is
    );
 end component;
 
+component monitor is
+   port(
+      base_addr : in std_logic_vector(17 downto 0);
+
+      bus_addr_match : out std_logic;
+      bus_addr : in std_logic_vector(17 downto 0);
+      bus_dati : out std_logic_vector(15 downto 0);
+      bus_dato : in std_logic_vector(15 downto 0);
+      bus_control_dati : in std_logic;
+      bus_control_dato : in std_logic;
+      bus_control_datob : in std_logic;
+
+      reset : in std_logic;
+      clk : in std_logic
+   );
+end component;
+
 component m9312l is
    port(
       base_addr : in std_logic_vector(17 downto 0);
@@ -840,6 +857,9 @@ signal rom0_dati : std_logic_vector(15 downto 0);
 signal rom1_addr_match : std_logic;
 signal rom1_dati : std_logic_vector(15 downto 0);
 
+signal rom2_addr_match : std_logic;
+signal rom2_dati : std_logic_vector(15 downto 0);
+
 signal csdr_addr_match : std_logic;
 signal csdr_dati : std_logic_vector(15 downto 0);
 
@@ -1155,6 +1175,21 @@ begin
       bus_dati => rom1_dati,
       bus_control_dati => unibus_control_dati,
 
+      clk => nclk
+   );
+
+   bootrom2: monitor port map(
+      base_addr => o"760000",                   -- monitor preloaded ram
+
+      bus_addr_match => rom2_addr_match,
+      bus_addr => unibus_addr,
+      bus_dati => rom2_dati,
+      bus_dato => unibus_dato,
+      bus_control_dati => unibus_control_dati,
+      bus_control_dato => unibus_control_dato,
+      bus_control_datob => unibus_control_datob,
+
+      reset => cpu_init,
       clk => nclk
    );
 
@@ -1635,6 +1670,7 @@ begin
       else csdr_dati when csdr_addr_match = '1'
       else rom0_dati when rom0_addr_match = '1'
       else rom1_dati when rom1_addr_match = '1'
+      else rom2_dati when rom2_addr_match = '1'
       else rl0_dati when rl0_addr_match = '1'
       else rk0_dati when rk0_addr_match = '1'
       else rh0_dati when rh0_addr_match = '1'
@@ -1652,6 +1688,7 @@ begin
       or csdr_addr_match = '1'
       or rom0_addr_match = '1'
       or rom1_addr_match = '1'
+      or rom2_addr_match = '1'
       or rl0_addr_match = '1'
       or rk0_addr_match = '1'
       or rh0_addr_match = '1'
@@ -1676,7 +1713,7 @@ begin
 
    oddabort <=
       '1' when bus_control_dato = '1' and bus_control_datob = '0' and bus_addr(0) = '1'
-      else '1' when ifetchcopy = '1' and unibus_control_dati = '1' and unibus_addr(17 downto 13) = "11111" and rom0_addr_match /= '1' and rom1_addr_match /= '1'
+      else '1' when ifetchcopy = '1' and unibus_control_dati = '1' and unibus_addr(17 downto 13) = "11111" and rom0_addr_match /= '1' and rom1_addr_match /= '1' and rom2_addr_match /= '1'
       else '1' when mmu_oddabort = '1'
       else '0';
 

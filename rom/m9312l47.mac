@@ -151,7 +151,7 @@ listcr:
          mov   pc,r1
          br    prtascz
 90$:
-         cmp   #160000,r4
+         cmp   #165000,r4
          blt   10$
          jmp   @#173000
 ;
@@ -182,6 +182,7 @@ adrtab:   .word 177776,tpsw
           .word 177572,tmmu
           .word 177570,tsdr
           .word 177560,tkl
+          .word 177550,tpt
           .word 177546,tkw
           .word 177400,trk
           .word 176700,trh
@@ -197,6 +198,7 @@ adrtab:   .word 177776,tpsw
           .word 170200,tubm
           .word 167770,tdr11c
           .word 165000,tm9312
+          .word 160000,odt11
           .word 0,0
 ;
 tpsw:    .asciz /psw/
@@ -212,6 +214,7 @@ trk:     .asciz /rk/
 trh:     .asciz /rh/
 tm9312:  .asciz /m9312/
 tkw:     .asciz /kw/
+tpt:     .asciz /pt/
 tkl:     .asciz /kl/
 tsdr:    .asciz /sdr/
 tubm:    .asciz /ubm/
@@ -222,3 +225,4 @@ tpdr:    .ascii /pdr/
          .ascii <57>
          .asciz /par/
 tdr11c:  .asciz /dr11c/
+odt11:   .asciz /odt11/
